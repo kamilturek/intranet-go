@@ -9,9 +9,11 @@ import (
 )
 
 const (
-	BaseURL         string = "https://intranet.stxnext.pl/api"
-	DateFormat      string = "2006-01-02"
-	SessionIDEnvVar string = "INTRANET_SESSION_ID"
+	BaseURL                string = "https://intranet.stxnext.pl/api"
+	DateFormat             string = "2006-01-02"
+	DateFormatAlternative1 string = "02-01-2006"
+	DateFormatAlternative2 string = "02.01.2006"
+	SessionIDEnvVar        string = "INTRANET_SESSION_ID"
 )
 
 type Client struct {

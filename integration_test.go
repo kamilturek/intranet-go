@@ -11,6 +11,10 @@ import (
 	"github.com/kamilturek/intranet"
 )
 
+const (
+	TestProjectID int = 1185 // Cross-company initiatives & improvements
+)
+
 func getClient(t *testing.T) *intranet.Client {
 	sessionID := os.Getenv(intranet.SessionIDEnvVar)
 	if len(sessionID) == 0 {
@@ -28,12 +32,31 @@ func TestGetHourEntries(t *testing.T) {
 		t.Fatalf("failed to parse the date: %v", err)
 	}
 
-	res, err := c.GetHourEntries(&intranet.GetHourEntriesOptions{Date: date})
+	res, err := c.GetHourEntries(&intranet.GetHourEntriesInput{Date: date})
 	if err != nil {
 		t.Fatalf("expected: nil, got: %v", err)
 	}
 
 	if len(res.Entries) != 8 {
 		t.Fatalf("expected: 8, got: %d", len(res.Entries))
+	}
+}
+
+func TestCreateHourEntry(t *testing.T) {
+	c := getClient(t)
+
+	res, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        time.Now().Format(intranet.DateFormatAlternative1),
+		Description: "Test",
+		ProjectID:   TestProjectID,
+		TicketID:    "",
+		Time:        0.25,
+	})
+	if err != nil {
+		t.Fatalf("expected: nil, got: %v", err)
+	}
+
+	if res.Added != time.Now().Format(intranet.DateFormatAlternative2) {
+		t.Fatalf("expected: %s, got: %s", time.Now().Format(intranet.DateFormatAlternative2), res.Added)
 	}
 }
