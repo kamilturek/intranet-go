@@ -52,6 +52,10 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) error {
 		return fmt.Errorf("HTTP error. Status: %d. Body: %s", res.StatusCode, resBody)
 	}
 
+	if v == nil {
+		return nil
+	}
+
 	if err = json.NewDecoder(res.Body).Decode(&v); err != nil {
 		return err
 	}

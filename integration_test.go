@@ -56,6 +56,12 @@ func TestCreateHourEntry(t *testing.T) {
 		t.Fatalf("expected: nil, got: %v", err)
 	}
 
+	defer func() {
+		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: res.ID}); err != nil {
+			t.Fatalf("failed to clean up the test: %v", err)
+		}
+	}()
+
 	if res.Added != time.Now().Format(intranet.DateFormatAlternative2) {
 		t.Fatalf("expected: %s, got: %s", time.Now().Format(intranet.DateFormatAlternative2), res.Added)
 	}

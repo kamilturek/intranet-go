@@ -68,7 +68,7 @@ type CreateHourEntryOutput struct {
 	UserID      string  `json:"userID"`
 }
 
-func (c *Client) CreateHourEntry(input interface{}) (*CreateHourEntryOutput, error) {
+func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
 	url := fmt.Sprintf("%s/user_times", c.BaseURL)
 
 	reqBytes, err := json.Marshal(input)
@@ -89,4 +89,30 @@ func (c *Client) CreateHourEntry(input interface{}) (*CreateHourEntryOutput, err
 	}
 
 	return &res, nil
+}
+
+type DeleteHourEntryInput struct {
+	ID int `json:"id"`
+}
+
+func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
+	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+
+	reqBytes, err := json.Marshal(input)
+	if err != nil {
+		return err
+	}
+
+	reqBody := bytes.NewBuffer(reqBytes)
+
+	req, err := http.NewRequest("DELETE", url, reqBody)
+	if err != nil {
+		return err
+	}
+
+	if err := c.sendRequest(req, nil); err != nil {
+		return err
+	}
+
+	return nil
 }
