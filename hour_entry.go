@@ -51,8 +51,8 @@ func (c *Client) GetHourEntries(input *GetHourEntriesInput) (*GetHourEntriesOutp
 type CreateHourEntryInput struct {
 	Date        string  `json:"date"`
 	Description string  `json:"description"`
-	ProjectID   int     `json:"project_id"`
-	TicketID    string  `json:"ticket_id"`
+	ProjectID   int     `json:"projectId"`
+	TicketID    string  `json:"ticketId"`
 	Time        float32 `json:"time"`
 }
 
@@ -60,7 +60,7 @@ type CreateHourEntryOutput struct {
 	Added       string  `json:"added"`
 	Date        string  `json:"date"`
 	Description string  `json:"desc"`
-	ID          int     `json:"id"`
+	ID          string  `json:"id"`
 	Modified    string  `json:"modified"`
 	Project     Project `json:"project"`
 	TicketID    string  `json:"ticketId"`
@@ -69,7 +69,7 @@ type CreateHourEntryOutput struct {
 }
 
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
-	url := fmt.Sprintf("%s/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
 
 	reqBytes, err := json.Marshal(input)
 	if err != nil {
@@ -77,7 +77,6 @@ func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryO
 	}
 
 	reqBody := bytes.NewBuffer(reqBytes)
-
 	req, err := http.NewRequest("POST", url, reqBody)
 	if err != nil {
 		return nil, err
@@ -92,7 +91,7 @@ func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryO
 }
 
 type DeleteHourEntryInput struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
@@ -104,7 +103,6 @@ func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
 	}
 
 	reqBody := bytes.NewBuffer(reqBytes)
-
 	req, err := http.NewRequest("DELETE", url, reqBody)
 	if err != nil {
 		return err
@@ -115,4 +113,38 @@ func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
 	}
 
 	return nil
+}
+
+type UpdateHourEntryInput struct {
+	Date        string  `json:"date"`
+	Description string  `json:"description"`
+	ID          string  `json:"timeEntryId"`
+	ProjectID   int     `json:"projectId"`
+	TicketID    string  `json:"ticketId"`
+	Time        float32 `json:"time"`
+}
+
+type UpdateHourEntryOutput = CreateHourEntryOutput
+
+func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
+	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+
+	reqBytes, err := json.Marshal(input)
+	if err != nil {
+		return nil, err
+	}
+
+	reqBody := bytes.NewBuffer(reqBytes)
+
+	req, err := http.NewRequest("PUT", url, reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	res := UpdateHourEntryOutput{}
+	if err := c.sendRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
