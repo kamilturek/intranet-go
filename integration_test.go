@@ -27,12 +27,7 @@ func getClient(t *testing.T) *intranet.Client {
 func TestGetHourEntries(t *testing.T) {
 	c := getClient(t)
 
-	date, err := time.Parse(intranet.DateFormat, "2022-05-20")
-	if err != nil {
-		t.Fatalf("failed to parse the date: %v", err)
-	}
-
-	res, err := c.GetHourEntries(&intranet.GetHourEntriesInput{Date: date})
+	res, err := c.GetHourEntries(&intranet.GetHourEntriesInput{Date: "2022-05-20"})
 	if err != nil {
 		t.Fatalf("expected: nil, got: %v", err)
 	}

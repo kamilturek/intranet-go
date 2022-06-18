@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type HourEntry struct {
@@ -24,7 +23,7 @@ type ProjectClient struct {
 }
 
 type GetHourEntriesInput struct {
-	Date time.Time
+	Date string
 }
 
 type GetHourEntriesOutput struct {
@@ -32,8 +31,7 @@ type GetHourEntriesOutput struct {
 }
 
 func (c *Client) GetHourEntries(input *GetHourEntriesInput) (*GetHourEntriesOutput, error) {
-	date := input.Date
-	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.BaseURL, date.Format(DateFormat))
+	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.BaseURL, input.Date)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
