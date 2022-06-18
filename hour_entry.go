@@ -16,7 +16,7 @@ type GetHourEntriesProject struct {
 type HourEntry struct {
 	ID          int                   `json:"id"`
 	Description string                `json:"description"`
-	Time        float32               `json:"time"`
+	Time        float64               `json:"time"`
 	Project     GetHourEntriesProject `json:"project"`
 }
 
@@ -69,7 +69,7 @@ type CreateHourEntryOutput struct {
 	Modified    string  `json:"modified"`
 	Project     Project `json:"project"`
 	TicketID    string  `json:"ticketId"`
-	Time        float32 `json:"time"`
+	Time        float64 `json:"time"`
 	UserID      string  `json:"userID"`
 }
 
