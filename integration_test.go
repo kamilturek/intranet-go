@@ -35,6 +35,18 @@ func TestGetHourEntries(t *testing.T) {
 	if len(res.Entries) != 8 {
 		t.Fatalf("expected: 8, got: %d", len(res.Entries))
 	}
+
+	if res.Entries[0].Project.ClientName != "Scurri Web Services Limited" {
+		t.Fatalf("expected: Scurri Web Services Limited, got: %s", res.Entries[0].Project.ClientName)
+	}
+
+	if res.Entries[0].Project.ID != 422 {
+		t.Fatalf("expected: 422, got: %d", res.Entries[0].Project.ID)
+	}
+
+	if res.Entries[0].Project.Name != "Shadow Unicorn (Scurri) / WRO / AyeAye / Billable" {
+		t.Fatalf("expected: Shadow Unicorn (Scurri) / WRO / AyeAye / Billable, got: %s", res.Entries[0].Project.Name)
+	}
 }
 
 func TestCreateHourEntry(t *testing.T) {

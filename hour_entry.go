@@ -7,19 +7,17 @@ import (
 	"net/http"
 )
 
+type GetHourEntriesProject struct {
+	ClientName string `json:"clientName"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+}
+
 type HourEntry struct {
-	ID          int     `json:"id"`
-	Description string  `json:"description"`
-	Time        float32 `json:"time"`
-}
-
-type Project struct {
-	Client ProjectClient `json:"client"`
-	Name   string        `json:"name"`
-}
-
-type ProjectClient struct {
-	Name string `json:"name"`
+	ID          int                   `json:"id"`
+	Description string                `json:"description"`
+	Time        float32               `json:"time"`
+	Project     GetHourEntriesProject `json:"project"`
 }
 
 type GetHourEntriesInput struct {
@@ -44,6 +42,15 @@ func (c *Client) GetHourEntries(input *GetHourEntriesInput) (*GetHourEntriesOutp
 	}
 
 	return &res, nil
+}
+
+type Project struct {
+	Client ProjectClient `json:"client"`
+	Name   string        `json:"name"`
+}
+
+type ProjectClient struct {
+	Name string `json:"name"`
 }
 
 type CreateHourEntryInput struct {
