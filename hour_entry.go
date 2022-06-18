@@ -58,7 +58,7 @@ type CreateHourEntryInput struct {
 	Description string  `json:"description"`
 	ProjectID   int     `json:"projectId"`
 	TicketID    string  `json:"ticketId"`
-	Time        float32 `json:"time"`
+	Time        float64 `json:"time"`
 }
 
 type CreateHourEntryOutput struct {
