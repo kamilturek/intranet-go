@@ -126,7 +126,7 @@ type UpdateHourEntryInput struct {
 	ID          string  `json:"timeEntryId"`
 	ProjectID   int     `json:"projectId"`
 	TicketID    string  `json:"ticketId"`
-	Time        float32 `json:"time"`
+	Time        float64 `json:"time"`
 }
 
 type UpdateHourEntryOutput = CreateHourEntryOutput
