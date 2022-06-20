@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kamilturek/intranet"
+	"github.com/kamilturek/intranet-go"
 )
 
 const (
