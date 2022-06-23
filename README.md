@@ -1,2 +1,1 @@
-# Intranet
-
+# Intranet Client for Go
