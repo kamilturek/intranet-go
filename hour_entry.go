@@ -7,28 +7,28 @@ import (
 	"net/http"
 )
 
-type GetHourEntriesProject struct {
+type FlatProject struct {
 	ClientName string `json:"clientName"`
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
 }
 
 type HourEntry struct {
-	ID          int                   `json:"id"`
-	Description string                `json:"description"`
-	Time        float64               `json:"time"`
-	Project     GetHourEntriesProject `json:"project"`
+	ID          int         `json:"id"`
+	Description string      `json:"description"`
+	Time        float64     `json:"time"`
+	Project     FlatProject `json:"project"`
 }
 
-type GetHourEntriesInput struct {
+type ListHourEntriesInput struct {
 	Date string
 }
 
-type GetHourEntriesOutput struct {
+type ListHourEntriesOutput struct {
 	Entries []HourEntry `json:"entries"`
 }
 
-func (c *Client) GetHourEntries(input *GetHourEntriesInput) (*GetHourEntriesOutput, error) {
+func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
 	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.BaseURL, input.Date)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -36,7 +36,7 @@ func (c *Client) GetHourEntries(input *GetHourEntriesInput) (*GetHourEntriesOutp
 		return nil, err
 	}
 
-	res := GetHourEntriesOutput{}
+	res := ListHourEntriesOutput{}
 	if err := c.sendRequest(req, &res); err != nil {
 		return nil, err
 	}

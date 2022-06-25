@@ -27,7 +27,7 @@ func getClient(t *testing.T) *intranet.Client {
 func TestGetHourEntries(t *testing.T) {
 	c := getClient(t)
 
-	res, err := c.GetHourEntries(&intranet.GetHourEntriesInput{Date: "2022-05-20"})
+	res, err := c.ListHourEntries(&intranet.ListHourEntriesInput{Date: "2022-05-20"})
 	if err != nil {
 		t.Fatalf("expected: nil, got: %v", err)
 	}
