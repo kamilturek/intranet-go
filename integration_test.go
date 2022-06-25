@@ -24,6 +24,12 @@ func getClient(t *testing.T) *intranet.Client {
 	return intranet.NewClient(sessionID)
 }
 
+// Not an ideal tests. Works only in the KT's account.
+// Idea: An entry can be created before listing but
+// that would assume that there's only one entry on
+// that particular date.
+//
+// To be re-visited.
 func TestListHourEntries(t *testing.T) {
 	c := getClient(t)
 
