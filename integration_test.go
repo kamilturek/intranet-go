@@ -24,28 +24,36 @@ func getClient(t *testing.T) *intranet.Client {
 	return intranet.NewClient(sessionID)
 }
 
-func TestGetHourEntries(t *testing.T) {
+func TestListHourEntries(t *testing.T) {
 	c := getClient(t)
 
 	res, err := c.ListHourEntries(&intranet.ListHourEntriesInput{Date: "2022-05-20"})
 	if err != nil {
-		t.Fatalf("expected: nil, got: %v", err)
+		t.Fatal(err)
 	}
 
-	if len(res.Entries) != 8 {
-		t.Fatalf("expected: 8, got: %d", len(res.Entries))
+	expectedEntries := 8
+	gotEntries := len(res.Entries)
+	if expectedEntries != gotEntries {
+		t.Fatalf("expected: %d, got: %d", expectedEntries, gotEntries)
 	}
 
-	if res.Entries[0].Project.ClientName != "Scurri Web Services Limited" {
-		t.Fatalf("expected: Scurri Web Services Limited, got: %s", res.Entries[0].Project.ClientName)
+	expectedClientName := "Scurri Web Services Limited"
+	gotClientName := res.Entries[0].Project.ClientName
+	if expectedClientName != gotClientName {
+		t.Fatalf("expected: %s, got: %s", expectedClientName, gotClientName)
 	}
 
-	if res.Entries[0].Project.ID != 422 {
-		t.Fatalf("expected: 422, got: %d", res.Entries[0].Project.ID)
+	expectedProjectID := 422
+	gotProjectID := res.Entries[0].Project.ID
+	if expectedProjectID != gotProjectID {
+		t.Fatalf("expected: %d, got: %d", expectedProjectID, gotProjectID)
 	}
 
-	if res.Entries[0].Project.Name != "Shadow Unicorn (Scurri) / WRO / AyeAye / Billable" {
-		t.Fatalf("expected: Shadow Unicorn (Scurri) / WRO / AyeAye / Billable, got: %s", res.Entries[0].Project.Name)
+	expectedProjectName := "Shadow Unicorn (Scurri) / WRO / AyeAye / Billable"
+	gotProjectName := res.Entries[0].Project.Name
+	if expectedProjectName != gotProjectName {
+		t.Fatalf("expected: %s, got: %s", expectedProjectName, gotProjectName)
 	}
 }
 
@@ -60,25 +68,31 @@ func TestCreateHourEntry(t *testing.T) {
 		Time:        0.25,
 	})
 	if err != nil {
-		t.Fatalf("expected: nil, got: %v", err)
+		t.Fatal(err)
 	}
 
 	defer func() {
 		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: res.ID}); err != nil {
-			t.Fatalf("failed to clean up the test: %v", err)
+			t.Fatalf("failed to clean up after the test: %v", err)
 		}
 	}()
 
-	if res.Added != time.Now().Format(intranet.DateFormat) {
-		t.Fatalf("expected: %s, got: %s", time.Now().Format(intranet.DateFormat), res.Added)
+	expectedAdded := time.Now().Format(intranet.DateFormat)
+	gotAdded := res.Added
+	if expectedAdded != gotAdded {
+		t.Fatalf("expected: %s, got: %s", expectedAdded, gotAdded)
 	}
 
-	if res.Time != 0.25 {
-		t.Fatalf("expected: %f, got: %f", 0.25, res.Time)
+	expectedTime := 0.25
+	gotTime := res.Time
+	if expectedTime != gotTime {
+		t.Fatalf("expected: %f, got: %f", expectedTime, gotTime)
 	}
 
-	if res.Description != "Test" {
-		t.Fatalf("expected: %s, got: %s", "Test", res.Description)
+	expectedDescription := "Test"
+	gotDescription := res.Description
+	if expectedDescription != gotDescription {
+		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
 	}
 }
 
@@ -93,12 +107,12 @@ func TestUpdateHourEntry(t *testing.T) {
 		Time:        0.25,
 	})
 	if err != nil {
-		t.Fatalf("expected: nil, got: %v", err)
+		t.Fatal(err)
 	}
 
 	defer func() {
 		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: res.ID}); err != nil {
-			t.Fatalf("failed to clean up the test: %v", err)
+			t.Fatalf("failed to clean up after the test: %v", err)
 		}
 	}()
 
@@ -114,11 +128,15 @@ func TestUpdateHourEntry(t *testing.T) {
 		t.Fatalf("expected: nil, got: %v", err)
 	}
 
-	if res.Time != 0.5 {
-		t.Fatalf("expected: %f, got: %f", 0.5, res.Time)
+	expectedTime := 0.5
+	gotTime := res.Time
+	if expectedTime != gotTime {
+		t.Fatalf("expected: %f, got: %f", expectedTime, gotTime)
 	}
 
-	if res.Description != "Test Updated" {
-		t.Fatalf("expected: %s, got: %s", "Test Updated", res.Description)
+	expectedDescription := "Test Updated"
+	gotDescription := res.Description
+	if expectedDescription != gotDescription {
+		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
 	}
 }
