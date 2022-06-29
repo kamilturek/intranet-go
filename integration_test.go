@@ -160,3 +160,44 @@ func TestUpdateHourEntry(t *testing.T) {
 		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
 	}
 }
+
+func TestDeleteHourEntry(t *testing.T) {
+	c := getClient(t)
+
+	res, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        time.Now().Format(intranet.DateFormat),
+		Description: "Test",
+		ProjectID:   TestProjectID,
+		TicketID:    "",
+		Time:        0.25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = c.DeleteHourEntry(&intranet.DeleteHourEntryInput{
+		ID: res.ID,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := strconv.Atoi(res.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = c.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   id,
+		Date: time.Now().Format(intranet.DateFormat),
+	})
+	if err == nil {
+		t.Fatalf("expected err, got nil")
+	}
+
+	expecterErr := "hour entry not found"
+	gotErr := err.Error()
+	if expecterErr != gotErr {
+		t.Fatalf("expected: %s, got: %s", expecterErr, gotErr)
+	}
+}
