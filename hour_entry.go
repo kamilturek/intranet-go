@@ -44,6 +44,30 @@ func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesO
 	return &res, nil
 }
 
+type GetHourEntryInput struct {
+	ID   int
+	Date string
+}
+
+type GetHourEntryOutput = HourEntry
+
+func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, error) {
+	output, err := c.ListHourEntries(&ListHourEntriesInput{
+		Date: input.Date,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range output.Entries {
+		if entry.ID == input.ID {
+			return &entry, nil
+		}
+	}
+
+	return nil, fmt.Errorf("hour entry not found")
+}
+
 type Project struct {
 	Client ProjectClient `json:"client"`
 	Name   string        `json:"name"`

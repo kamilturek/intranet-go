@@ -5,6 +5,7 @@ package intranet_test
 
 import (
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -22,6 +23,58 @@ func getClient(t *testing.T) *intranet.Client {
 	}
 
 	return intranet.NewClient(sessionID)
+}
+
+func TestGetHourEntry(t *testing.T) {
+	c := getClient(t)
+
+	resCreate, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        time.Now().Format(intranet.DateFormat),
+		Description: "Test",
+		ProjectID:   TestProjectID,
+		TicketID:    "",
+		Time:        0.25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: resCreate.ID}); err != nil {
+			t.Fatalf("failed to clean up after the test: %v", err)
+		}
+	}()
+
+	id, err := strconv.Atoi(resCreate.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := c.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   id,
+		Date: time.Now().Format(intranet.DateFormat),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedDescription := "Test"
+	gotDescription := res.Description
+	if expectedDescription != gotDescription {
+		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
+	}
+
+	expectedProjectID := TestProjectID
+	gotProjectID := res.Project.ID
+	if expectedProjectID != gotProjectID {
+		t.Fatalf("expected: %d, got %d", expectedProjectID, gotProjectID)
+	}
+
+	expectedTime := 0.25
+	gotTime := res.Time
+	if expectedTime != gotTime {
+		t.Fatalf("expected: %f, got: %f", expectedTime, gotTime)
+	}
 }
 
 func TestCreateHourEntry(t *testing.T) {
