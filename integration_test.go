@@ -24,47 +24,6 @@ func getClient(t *testing.T) *intranet.Client {
 	return intranet.NewClient(sessionID)
 }
 
-// Not an ideal tests. Works only in the KT's account.
-// Idea: An entry can be created before listing but
-// that would assume that there's only one entry on
-// that particular date.
-//
-// To be re-visited.
-func TestListHourEntries(t *testing.T) {
-	t.SkipNow()
-
-	c := getClient(t)
-
-	res, err := c.ListHourEntries(&intranet.ListHourEntriesInput{Date: "2022-05-20"})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	expectedEntries := 8
-	gotEntries := len(res.Entries)
-	if expectedEntries != gotEntries {
-		t.Fatalf("expected: %d, got: %d", expectedEntries, gotEntries)
-	}
-
-	expectedClientName := "Scurri Web Services Limited"
-	gotClientName := res.Entries[0].Project.ClientName
-	if expectedClientName != gotClientName {
-		t.Fatalf("expected: %s, got: %s", expectedClientName, gotClientName)
-	}
-
-	expectedProjectID := 422
-	gotProjectID := res.Entries[0].Project.ID
-	if expectedProjectID != gotProjectID {
-		t.Fatalf("expected: %d, got: %d", expectedProjectID, gotProjectID)
-	}
-
-	expectedProjectName := "Shadow Unicorn (Scurri) / WRO / AyeAye / Billable"
-	gotProjectName := res.Entries[0].Project.Name
-	if expectedProjectName != gotProjectName {
-		t.Fatalf("expected: %s, got: %s", expectedProjectName, gotProjectName)
-	}
-}
-
 func TestCreateHourEntry(t *testing.T) {
 	c := getClient(t)
 
