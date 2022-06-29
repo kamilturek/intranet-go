@@ -31,6 +31,8 @@ func getClient(t *testing.T) *intranet.Client {
 //
 // To be re-visited.
 func TestListHourEntries(t *testing.T) {
+	t.SkipNow()
+
 	c := getClient(t)
 
 	res, err := c.ListHourEntries(&intranet.ListHourEntriesInput{Date: "2022-05-20"})
