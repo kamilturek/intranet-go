@@ -62,7 +62,3 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) error {
 
 	return nil
 }
-
-func fail_over_here() {
-
-}
