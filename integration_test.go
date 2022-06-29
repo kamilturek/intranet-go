@@ -5,6 +5,7 @@ package intranet_test
 
 import (
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -24,44 +25,55 @@ func getClient(t *testing.T) *intranet.Client {
 	return intranet.NewClient(sessionID)
 }
 
-// Not an ideal tests. Works only in the KT's account.
-// Idea: An entry can be created before listing but
-// that would assume that there's only one entry on
-// that particular date.
-//
-// To be re-visited.
-func TestListHourEntries(t *testing.T) {
-	t.SkipNow()
-
+func TestGetHourEntry(t *testing.T) {
 	c := getClient(t)
 
-	res, err := c.ListHourEntries(&intranet.ListHourEntriesInput{Date: "2022-05-20"})
+	resCreate, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        time.Now().Format(intranet.DateFormat),
+		Description: "Test",
+		ProjectID:   TestProjectID,
+		TicketID:    "",
+		Time:        0.25,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expectedEntries := 8
-	gotEntries := len(res.Entries)
-	if expectedEntries != gotEntries {
-		t.Fatalf("expected: %d, got: %d", expectedEntries, gotEntries)
+	defer func() {
+		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: resCreate.ID}); err != nil {
+			t.Fatalf("failed to clean up after the test: %v", err)
+		}
+	}()
+
+	id, err := strconv.Atoi(resCreate.ID)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	expectedClientName := "Scurri Web Services Limited"
-	gotClientName := res.Entries[0].Project.ClientName
-	if expectedClientName != gotClientName {
-		t.Fatalf("expected: %s, got: %s", expectedClientName, gotClientName)
+	res, err := c.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   id,
+		Date: time.Now().Format(intranet.DateFormat),
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	expectedProjectID := 422
-	gotProjectID := res.Entries[0].Project.ID
+	expectedDescription := "Test"
+	gotDescription := res.Description
+	if expectedDescription != gotDescription {
+		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
+	}
+
+	expectedProjectID := TestProjectID
+	gotProjectID := res.Project.ID
 	if expectedProjectID != gotProjectID {
-		t.Fatalf("expected: %d, got: %d", expectedProjectID, gotProjectID)
+		t.Fatalf("expected: %d, got %d", expectedProjectID, gotProjectID)
 	}
 
-	expectedProjectName := "Shadow Unicorn (Scurri) / WRO / AyeAye / Billable"
-	gotProjectName := res.Entries[0].Project.Name
-	if expectedProjectName != gotProjectName {
-		t.Fatalf("expected: %s, got: %s", expectedProjectName, gotProjectName)
+	expectedTime := 0.25
+	gotTime := res.Time
+	if expectedTime != gotTime {
+		t.Fatalf("expected: %f, got: %f", expectedTime, gotTime)
 	}
 }
 
@@ -146,5 +158,46 @@ func TestUpdateHourEntry(t *testing.T) {
 	gotDescription := res.Description
 	if expectedDescription != gotDescription {
 		t.Fatalf("expected: %s, got: %s", expectedDescription, gotDescription)
+	}
+}
+
+func TestDeleteHourEntry(t *testing.T) {
+	c := getClient(t)
+
+	res, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        time.Now().Format(intranet.DateFormat),
+		Description: "Test",
+		ProjectID:   TestProjectID,
+		TicketID:    "",
+		Time:        0.25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = c.DeleteHourEntry(&intranet.DeleteHourEntryInput{
+		ID: res.ID,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := strconv.Atoi(res.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = c.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   id,
+		Date: time.Now().Format(intranet.DateFormat),
+	})
+	if err == nil {
+		t.Fatalf("expected err, got nil")
+	}
+
+	expecterErr := "hour entry not found"
+	gotErr := err.Error()
+	if expecterErr != gotErr {
+		t.Fatalf("expected: %s, got: %s", expecterErr, gotErr)
 	}
 }
