@@ -119,7 +119,7 @@ func TestCreateHourEntry(t *testing.T) {
 func TestUpdateHourEntry(t *testing.T) {
 	c := getClient(t)
 
-	res, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
+	resCreate, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{
 		Date:        time.Now().Format(intranet.DateFormat),
 		Description: "Test",
 		ProjectID:   TestProjectID,
@@ -131,15 +131,15 @@ func TestUpdateHourEntry(t *testing.T) {
 	}
 
 	defer func() {
-		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: res.ID}); err != nil {
+		if err := c.DeleteHourEntry(&intranet.DeleteHourEntryInput{ID: resCreate.ID}); err != nil {
 			t.Fatalf("failed to clean up after the test: %v", err)
 		}
 	}()
 
-	res, err = c.UpdateHourEntry(&intranet.UpdateHourEntryInput{
+	res, err := c.UpdateHourEntry(&intranet.UpdateHourEntryInput{
 		Date:        time.Now().Format(intranet.DateFormat),
 		Description: "Test Updated",
-		ID:          res.ID,
+		ID:          resCreate.ID,
 		ProjectID:   TestProjectID,
 		TicketID:    "",
 		Time:        0.5,
