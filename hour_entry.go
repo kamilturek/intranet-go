@@ -11,19 +11,19 @@ type ListHourEntriesInput struct {
 	Date string
 }
 
-type entry struct {
-	ID          int     `json:"id"`
-	Description string  `json:"description"`
-	Time        float64 `json:"time"`
+type Entry struct {
+	ID          int
+	Description string
+	Time        float64
 	Project     struct {
-		ClientName string `json:"clientName"`
-		ID         int    `json:"id"`
-		Name       string `json:"name"`
-	} `json:"project"`
+		ClientName string
+		ID         int
+		Name       string
+	}
 }
 
 type ListHourEntriesOutput struct {
-	Entries []entry `json:"entries"`
+	Entries []Entry `json:"entries"`
 }
 
 func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
@@ -47,7 +47,7 @@ type GetHourEntryInput struct {
 	Date string
 }
 
-type GetHourEntryOutput entry
+type GetHourEntryOutput Entry
 
 func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, error) {
 	output, err := c.ListHourEntries(&ListHourEntriesInput{

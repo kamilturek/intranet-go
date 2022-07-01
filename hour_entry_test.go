@@ -76,3 +76,38 @@ func TestCreateHourEntry(t *testing.T) {
 		t.Fatal(cmp.Diff(want, got))
 	}
 }
+
+func TestListHourEntries(t *testing.T) {
+	client, deferFunc := GetClient(t, "list")
+	defer deferFunc()
+
+	got, err := client.ListHourEntries(&intranet.ListHourEntriesInput{
+		Date: "2022-07-02",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := &intranet.ListHourEntriesOutput{
+		Entries: []intranet.Entry{
+			{
+				ID:          2177998,
+				Description: "Test",
+				Time:        0.25,
+				Project: struct {
+					ClientName string
+					ID         int
+					Name       string
+				}{
+					ClientName: "Test Client",
+					ID:         123,
+					Name:       "Test Project",
+				},
+			},
+		},
+	}
+
+	if !cmp.Equal(want, got) {
+		t.Fatal(cmp.Diff(want, got))
+	}
+}
