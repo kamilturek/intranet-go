@@ -7,25 +7,23 @@ import (
 	"net/http"
 )
 
-type FlatProject struct {
-	ClientName string `json:"clientName"`
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-}
-
-type HourEntry struct {
-	ID          int         `json:"id"`
-	Description string      `json:"description"`
-	Time        float64     `json:"time"`
-	Project     FlatProject `json:"project"`
-}
-
 type ListHourEntriesInput struct {
 	Date string
 }
 
+type Entry struct {
+	ID          int
+	Description string
+	Time        float64
+	Project     struct {
+		ClientName string
+		ID         int
+		Name       string
+	}
+}
+
 type ListHourEntriesOutput struct {
-	Entries []HourEntry `json:"entries"`
+	Entries []Entry `json:"entries"`
 }
 
 func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
@@ -49,7 +47,7 @@ type GetHourEntryInput struct {
 	Date string
 }
 
-type GetHourEntryOutput = HourEntry
+type GetHourEntryOutput Entry
 
 func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, error) {
 	output, err := c.ListHourEntries(&ListHourEntriesInput{
@@ -61,20 +59,12 @@ func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, er
 
 	for _, entry := range output.Entries {
 		if entry.ID == input.ID {
-			return &entry, nil
+			entryOutput := GetHourEntryOutput(entry)
+			return &entryOutput, nil
 		}
 	}
 
 	return nil, fmt.Errorf("hour entry not found")
-}
-
-type Project struct {
-	Client ProjectClient `json:"client"`
-	Name   string        `json:"name"`
-}
-
-type ProjectClient struct {
-	Name string `json:"name"`
 }
 
 type CreateHourEntryInput struct {
@@ -86,15 +76,20 @@ type CreateHourEntryInput struct {
 }
 
 type CreateHourEntryOutput struct {
-	Added       string  `json:"added"`
-	Date        string  `json:"date"`
-	Description string  `json:"desc"`
-	ID          string  `json:"id"`
-	Modified    string  `json:"modified"`
-	Project     Project `json:"project"`
-	TicketID    string  `json:"ticketId"`
-	Time        float64 `json:"time"`
-	UserID      string  `json:"userID"`
+	Added       string
+	Date        string
+	Description string `json:"desc"`
+	ID          string
+	Modified    string
+	Project     struct {
+		Client struct {
+			Name string
+		}
+		Name string
+	}
+	TicketID string
+	Time     float64
+	UserID   string
 }
 
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
@@ -153,7 +148,7 @@ type UpdateHourEntryInput struct {
 	Time        float64 `json:"time"`
 }
 
-type UpdateHourEntryOutput = CreateHourEntryOutput
+type UpdateHourEntryOutput CreateHourEntryOutput
 
 func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)

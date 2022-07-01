@@ -1,0 +1,63 @@
+---
+version: 1
+interactions:
+- request:
+    body: '{"date":"2022-07-01","description":"Working on feature A","projectId":123,"ticketId":"ABC123","time":0.5}'
+    form: {}
+    headers: {}
+    url: https://intranet.stxnext.pl/api/intranet4/user_times
+    method: POST
+  response:
+    body: '{"desc": "Working on feature A", "added": "2022-07-02", "userId": "7777",
+      "modified": "2022-07-02", "project": {"client": {"name": "Test Client"}, "name": "Test Project"}, "id":
+      "2178009", "date": "2022-07-01", "time": 0.5, "ticketId": "ABC123"}'
+    headers:
+      Content-Length:
+      - "298"
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 01 Jul 2022 22:06:01 GMT
+      Server:
+      - nginx/1.17.10
+    status: 201 Created
+    code: 201
+    duration: 137.42525ms
+- request:
+    body: '{"date":"2022-07-02","description":"Working on feature B","timeEntryId":"2178009","projectId":456,"ticketId":"CDE456","time":1}'
+    form: {}
+    headers: {}
+    url: https://intranet.stxnext.pl/api/intranet4/user_times
+    method: PUT
+  response:
+    body: '{"desc": "Working on feature B", "added": "2022-07-02", "userId": "7777",
+      "modified": "2022-07-02", "project": {"client": {"name": "Test Client"}, "name": "Test Project"}, "id":
+      "2178009", "date": "2022-07-02", "time": 1.0, "ticketId": "CDE456"}'
+    headers:
+      Content-Length:
+      - "298"
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 01 Jul 2022 22:06:01 GMT
+      Server:
+      - nginx/1.17.10
+    status: 200 OK
+    code: 200
+    duration: 53.026042ms
+- request:
+    body: '{"id":"2178009"}'
+    form: {}
+    headers: {}
+    url: https://intranet.stxnext.pl/api/intranet4/user_times
+    method: DELETE
+  response:
+    body: ""
+    headers:
+      Date:
+      - Fri, 01 Jul 2022 22:06:02 GMT
+      Server:
+      - nginx/1.17.10
+    status: 204 No Content
+    code: 204
+    duration: 49.124583ms
