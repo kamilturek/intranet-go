@@ -38,7 +38,7 @@ func TestCreateHourEntry(t *testing.T) {
 	defer deferFunc()
 
 	got, err := client.CreateHourEntry(&intranet.CreateHourEntryInput{
-		Date:        "2022-07-01",
+		Date:        "2022-07-02",
 		Description: "Working on feature A",
 		ProjectID:   123,
 		TicketID:    "ABC123",
@@ -48,12 +48,19 @@ func TestCreateHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	err = client.DeleteHourEntry(&intranet.DeleteHourEntryInput{
+		ID: got.ID,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	want := &intranet.CreateHourEntryOutput{
-		Added:       "2022-07-01",
-		Date:        "2022-07-01",
+		Added:       "2022-07-02",
+		Date:        "2022-07-02",
 		Description: "Working on feature A",
-		ID:          "2177996",
-		Modified:    "2022-07-01",
+		ID:          "2178010",
+		Modified:    "2022-07-02",
 		Project: struct {
 			Client struct {
 				Name string
