@@ -28,7 +28,10 @@ func GetClient(t *testing.T, cassetteName string) (*intranet.Client, func()) {
 	client.HTTPClient.Transport = r
 
 	deferFunc := func() {
-		r.Stop()
+		err = r.Stop()
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	return client, deferFunc
