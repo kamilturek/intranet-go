@@ -76,20 +76,20 @@ type CreateHourEntryInput struct {
 }
 
 type CreateHourEntryOutput struct {
-	Added       string `json:"added"`
-	Date        string `json:"date"`
+	Added       string
+	Date        string
 	Description string `json:"desc"`
-	ID          string `json:"id"`
-	Modified    string `json:"modified"`
+	ID          string
+	Modified    string
 	Project     struct {
 		Client struct {
-			Name string `json:"name"`
-		} `json:"client"`
-		Name string `json:"name"`
-	} `json:"project"`
-	TicketID string  `json:"ticketId"`
-	Time     float64 `json:"time"`
-	UserID   string  `json:"userID"`
+			Name string
+		}
+		Name string
+	}
+	TicketID string
+	Time     float64
+	UserID   string
 }
 
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {

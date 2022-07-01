@@ -77,7 +77,7 @@ func TestGetHourEntry(t *testing.T) {
 	}
 }
 
-func TestCreateHourEntry(t *testing.T) {
+func TestCreateHourEntryXX(t *testing.T) {
 	c := getClient(t)
 
 	res, err := c.CreateHourEntry(&intranet.CreateHourEntryInput{

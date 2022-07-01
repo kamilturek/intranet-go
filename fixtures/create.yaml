@@ -1,0 +1,26 @@
+---
+version: 1
+interactions:
+- request:
+    body: '{"date":"2022-07-01","description":"Working on feature A","projectId":123,"ticketId":"ABC123","time":0.5}'
+    form: {}
+    headers: {}
+    url: https://intranet.stxnext.pl/api/intranet4/user_times
+    method: POST
+  response:
+    body: '{"desc": "Working on feature A", "added": "2022-07-01", "userId": "7777",
+      "modified": "2022-07-01", "project": {"client": {"name": "Test Client"}, "name":
+      "Test Project"}, "id": "2177996", "date": "2022-07-01",
+      "time": 0.5, "ticketId": "ABC123"}'
+    headers:
+      Content-Length:
+      - "270"
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 01 Jul 2022 21:36:30 GMT
+      Server:
+      - nginx/1.17.10
+    status: 201 Created
+    code: 201
+    duration: 109.075ms
