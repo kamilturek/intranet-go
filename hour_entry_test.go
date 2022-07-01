@@ -3,6 +3,7 @@ package intranet_test
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/dnaeon/go-vcr/v2/cassette"
@@ -141,18 +142,41 @@ func TestGetHourEntry(t *testing.T) {
 	client, deferFunc := GetClient(t, "get")
 	defer deferFunc()
 
+	created, err := client.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        "2022-07-02",
+		Description: "Working on feature A",
+		ProjectID:   123,
+		TicketID:    "ABC123",
+		Time:        0.5,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err := strconv.Atoi(created.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	got, err := client.GetHourEntry(&intranet.GetHourEntryInput{
-		ID:   2177998,
+		ID:   id,
 		Date: "2022-07-02",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	err = client.DeleteHourEntry(&intranet.DeleteHourEntryInput{
+		ID: created.ID,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	want := &intranet.GetHourEntryOutput{
-		ID:          2177998,
-		Description: "Test",
-		Time:        0.25,
+		ID:          id,
+		Description: "Working on feature A",
+		Time:        0.5,
 		Project: struct {
 			ClientName string
 			ID         int
