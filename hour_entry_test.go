@@ -88,8 +88,26 @@ func TestListHourEntries(t *testing.T) {
 	client, deferFunc := GetClient(t, "list")
 	defer deferFunc()
 
+	created, err := client.CreateHourEntry(&intranet.CreateHourEntryInput{
+		Date:        "2022-07-02",
+		Description: "Working on feature A",
+		ProjectID:   123,
+		TicketID:    "ABC123",
+		Time:        0.5,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	got, err := client.ListHourEntries(&intranet.ListHourEntriesInput{
 		Date: "2022-07-02",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = client.DeleteHourEntry(&intranet.DeleteHourEntryInput{
+		ID: created.ID,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -98,9 +116,9 @@ func TestListHourEntries(t *testing.T) {
 	want := &intranet.ListHourEntriesOutput{
 		Entries: []intranet.Entry{
 			{
-				ID:          2177998,
-				Description: "Test",
-				Time:        0.25,
+				ID:          2178011,
+				Description: "Working on feature A",
+				Time:        0.5,
 				Project: struct {
 					ClientName string
 					ID         int
