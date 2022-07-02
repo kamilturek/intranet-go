@@ -34,12 +34,22 @@ func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesO
 		return nil, err
 	}
 
-	res := ListHourEntriesOutput{}
-	if err := c.sendRequest(req, &res); err != nil {
+	status, data, err := c.sendRequest(req)
+	if err != nil {
 		return nil, err
 	}
 
-	return &res, nil
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response status: %d", status)
+	}
+
+	var output ListHourEntriesOutput
+	err = json.Unmarshal(data, &output)
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
 }
 
 type GetHourEntryInput struct {
@@ -57,10 +67,10 @@ func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, er
 		return nil, err
 	}
 
-	for _, entry := range output.Entries {
-		if entry.ID == input.ID {
-			entryOutput := GetHourEntryOutput(entry)
-			return &entryOutput, nil
+	for _, e := range output.Entries {
+		if e.ID == input.ID {
+			entry := GetHourEntryOutput(e)
+			return &entry, nil
 		}
 	}
 
@@ -95,23 +105,32 @@ type CreateHourEntryOutput struct {
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
 
-	reqBytes, err := json.Marshal(input)
+	postData, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
 
-	reqBody := bytes.NewBuffer(reqBytes)
-	req, err := http.NewRequest("POST", url, reqBody)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(postData))
 	if err != nil {
 		return nil, err
 	}
 
-	res := CreateHourEntryOutput{}
-	if err := c.sendRequest(req, &res); err != nil {
+	status, data, err := c.sendRequest(req)
+	if err != nil {
 		return nil, err
 	}
 
-	return &res, nil
+	if status != http.StatusCreated {
+		return nil, fmt.Errorf("unexpected response status: %d", status)
+	}
+
+	var output CreateHourEntryOutput
+	err = json.Unmarshal(data, &output)
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
 }
 
 type DeleteHourEntryInput struct {
@@ -121,19 +140,23 @@ type DeleteHourEntryInput struct {
 func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
 
-	reqBytes, err := json.Marshal(input)
+	postData, err := json.Marshal(input)
 	if err != nil {
 		return err
 	}
 
-	reqBody := bytes.NewBuffer(reqBytes)
-	req, err := http.NewRequest("DELETE", url, reqBody)
+	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(postData))
 	if err != nil {
 		return err
 	}
 
-	if err := c.sendRequest(req, nil); err != nil {
+	status, _, err := c.sendRequest(req)
+	if err != nil {
 		return err
+	}
+
+	if status != http.StatusNoContent {
+		return fmt.Errorf("unexpected response status: %d", status)
 	}
 
 	return nil
@@ -153,22 +176,30 @@ type UpdateHourEntryOutput CreateHourEntryOutput
 func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
 
-	reqBytes, err := json.Marshal(input)
+	postData, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
 
-	reqBody := bytes.NewBuffer(reqBytes)
-
-	req, err := http.NewRequest("PUT", url, reqBody)
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(postData))
 	if err != nil {
 		return nil, err
 	}
 
-	res := UpdateHourEntryOutput{}
-	if err := c.sendRequest(req, &res); err != nil {
+	status, data, err := c.sendRequest(req)
+	if err != nil {
 		return nil, err
 	}
 
-	return &res, nil
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response status: %d", status)
+	}
+
+	var output UpdateHourEntryOutput
+	err = json.Unmarshal(data, &output)
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
 }

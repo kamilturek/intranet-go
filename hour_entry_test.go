@@ -1,41 +1,12 @@
 package intranet_test
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 	"testing"
 
-	"github.com/dnaeon/go-vcr/v2/cassette"
-	"github.com/dnaeon/go-vcr/v2/recorder"
 	"github.com/google/go-cmp/cmp"
 	"github.com/kamilturek/intranet-go"
 )
-
-func GetClient(t *testing.T, cassetteName string) (*intranet.Client, func()) {
-	r, err := recorder.New(fmt.Sprintf("fixtures/%s", cassetteName))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	r.AddFilter(func(i *cassette.Interaction) error {
-		delete(i.Request.Headers, "Cookie")
-		return nil
-	})
-
-	sessionID := os.Getenv(intranet.SessionIDEnvVar)
-	client := intranet.NewClient(sessionID)
-	client.HTTPClient.Transport = r
-
-	deferFunc := func() {
-		err = r.Stop()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	return client, deferFunc
-}
 
 func TestCreateHourEntry(t *testing.T) {
 	client, deferFunc := GetClient(t, "create")
@@ -269,6 +240,26 @@ func TestUpdateHourEntry(t *testing.T) {
 		Time:     1,
 		UserID:   "7777",
 	}
+
+	if !cmp.Equal(want, got) {
+		t.Fatal(cmp.Diff(want, got))
+	}
+}
+
+func TestUnauthenticated(t *testing.T) {
+	client, deferFunc := GetClient(t, "unauthenticated")
+	defer deferFunc()
+
+	_, err := client.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   0,
+		Date: "2022-08-02",
+	})
+	if err == nil {
+		t.Fatal("want error, got nil")
+	}
+
+	want := "unexpected response status: 302"
+	got := err.Error()
 
 	if !cmp.Equal(want, got) {
 		t.Fatal(cmp.Diff(want, got))

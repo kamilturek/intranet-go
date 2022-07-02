@@ -1,0 +1,29 @@
+---
+version: 1
+interactions:
+- request:
+    body: ""
+    form: {}
+    headers: {}
+    url: https://intranet.stxnext.pl/api/intranet4/hours?date=2022-08-02
+    method: GET
+  response:
+    body: |+
+      302 Found
+
+      The resource was found at /auth/logout_view; you should be redirected automatically.
+
+    headers:
+      Content-Length:
+      - "97"
+      Content-Type:
+      - text/plain; charset=UTF-8
+      Date:
+      - Sat, 02 Jul 2022 12:13:29 GMT
+      Location:
+      - https://intranet.stxnext.pl/auth/logout_view
+      Server:
+      - nginx/1.17.10
+    status: 302 Found
+    code: 302
+    duration: 78.038458ms

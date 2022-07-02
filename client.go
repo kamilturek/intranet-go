@@ -1,7 +1,6 @@
 package intranet
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,37 +25,27 @@ func NewClient(sessionID string) *Client {
 		SessionID: sessionID,
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
 		},
 	}
 }
 
-func (c *Client) sendRequest(req *http.Request, v interface{}) error {
+func (c *Client) sendRequest(req *http.Request) (status int, data []byte, err error) {
 	req.Header.Set("Cookie", fmt.Sprintf("beaker.session.id=%s", c.SessionID))
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return err
+		return status, data, fmt.Errorf("error making request: %w", err)
 	}
 
 	defer res.Body.Close()
 
-	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusBadRequest {
-		resBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-
-		resBody := string(resBytes)
-		return fmt.Errorf("HTTP error. Status: %d. Body: %s", res.StatusCode, resBody)
+	data, err = io.ReadAll(res.Body)
+	if err != nil {
+		return status, data, fmt.Errorf("error reading response body: %w", err)
 	}
 
-	if v == nil {
-		return nil
-	}
-
-	if err = json.NewDecoder(res.Body).Decode(&v); err != nil {
-		return err
-	}
-
-	return nil
+	return res.StatusCode, data, nil
 }
