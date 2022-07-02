@@ -25,6 +25,9 @@ func NewClient(sessionID string) *Client {
 		SessionID: sessionID,
 		HTTPClient: &http.Client{
 			Timeout: 10 * time.Second,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
 		},
 	}
 }

@@ -245,3 +245,23 @@ func TestUpdateHourEntry(t *testing.T) {
 		t.Fatal(cmp.Diff(want, got))
 	}
 }
+
+func TestUnauthenticated(t *testing.T) {
+	client, deferFunc := GetClient(t, "unauthenticated")
+	defer deferFunc()
+
+	_, err := client.GetHourEntry(&intranet.GetHourEntryInput{
+		ID:   0,
+		Date: "2022-08-02",
+	})
+	if err == nil {
+		t.Fatal("want error, got nil")
+	}
+
+	want := "unexpected response status: 302"
+	got := err.Error()
+
+	if !cmp.Equal(want, got) {
+		t.Fatal(cmp.Diff(want, got))
+	}
+}

@@ -18,6 +18,7 @@ func GetClient(t *testing.T, cassetteName string) (*intranet.Client, func()) {
 
 	r.AddFilter(func(i *cassette.Interaction) error {
 		delete(i.Request.Headers, "Cookie")
+		delete(i.Response.Headers, "Set-Cookie")
 		return nil
 	})
 
