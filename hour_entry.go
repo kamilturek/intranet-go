@@ -44,6 +44,7 @@ func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesO
 	}
 
 	var output ListHourEntriesOutput
+
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
@@ -70,6 +71,7 @@ func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, er
 	for _, e := range output.Entries {
 		if e.ID == input.ID {
 			entry := GetHourEntryOutput(e)
+
 			return &entry, nil
 		}
 	}
@@ -125,6 +127,7 @@ func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryO
 	}
 
 	var output CreateHourEntryOutput
+
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
@@ -196,6 +199,7 @@ func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryO
 	}
 
 	var output UpdateHourEntryOutput
+
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
