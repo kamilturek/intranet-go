@@ -1,0 +1,31 @@
+run:
+  go: '1.18'
+linters:
+  enable-all: true
+  disable:
+    # go.18 incompatible
+    - bodyclose
+    - contextcheck
+    - nilerr
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - tparallel
+    - unparam
+    - wastedassign
+
+    # other reasons
+    - exhaustruct
+    - goerr113
+    - gomnd
+    - nonamedreturns
+    - varnamelen
+    - wrapcheck
+
+    # deprecated
+    - golint
+    - interfacer
+    - maligned
+    - scopelint
+    - exhaustivestruct

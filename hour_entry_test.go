@@ -9,6 +9,8 @@ import (
 )
 
 func TestCreateHourEntry(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "create")
 	defer deferFunc()
 
@@ -60,6 +62,8 @@ func TestCreateHourEntry(t *testing.T) {
 }
 
 func TestListHourEntries(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "list")
 	defer deferFunc()
 
@@ -113,6 +117,8 @@ func TestListHourEntries(t *testing.T) {
 }
 
 func TestGetHourEntry(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "get")
 	defer deferFunc()
 
@@ -168,6 +174,8 @@ func TestGetHourEntry(t *testing.T) {
 }
 
 func TestGetHourEntryNotFound(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "get_not_found")
 	defer deferFunc()
 
@@ -188,6 +196,8 @@ func TestGetHourEntryNotFound(t *testing.T) {
 }
 
 func TestUpdateHourEntry(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "update")
 	defer deferFunc()
 
@@ -247,6 +257,8 @@ func TestUpdateHourEntry(t *testing.T) {
 }
 
 func TestUnauthenticated(t *testing.T) {
+	t.Parallel()
+
 	client, deferFunc := GetClient(t, "unauthenticated")
 	defer deferFunc()
 

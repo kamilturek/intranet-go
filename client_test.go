@@ -11,6 +11,8 @@ import (
 )
 
 func GetClient(t *testing.T, cassetteName string) (*intranet.Client, func()) {
+	t.Helper()
+
 	r, err := recorder.New(fmt.Sprintf("fixtures/%s", cassetteName))
 	if err != nil {
 		t.Fatal(err)
@@ -19,6 +21,7 @@ func GetClient(t *testing.T, cassetteName string) (*intranet.Client, func()) {
 	r.AddFilter(func(i *cassette.Interaction) error {
 		delete(i.Request.Headers, "Cookie")
 		delete(i.Response.Headers, "Set-Cookie")
+
 		return nil
 	})
 
