@@ -1,9 +1,11 @@
 package intranet
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -14,16 +16,16 @@ const (
 )
 
 type Client struct {
-	BaseURL    string
-	SessionID  string
-	HTTPClient *http.Client
+	baseURL    string
+	sessionID  string
+	httpClient *http.Client
 }
 
-func NewClient(sessionID string) *Client {
+func NewClient(opts ...option) *Client {
 	return &Client{
-		BaseURL:   BaseURL,
-		SessionID: sessionID,
-		HTTPClient: &http.Client{
+		baseURL:   BaseURL,
+		sessionID: os.Getenv(SessionIDEnvVar),
+		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
@@ -32,10 +34,24 @@ func NewClient(sessionID string) *Client {
 	}
 }
 
-func (c *Client) sendRequest(req *http.Request) (status int, data []byte, err error) {
-	req.Header.Set("Cookie", fmt.Sprintf("beaker.session.id=%s", c.SessionID))
+type option func(c *Client) error
 
-	res, err := c.HTTPClient.Do(req)
+func WithSessionID(sessionID string) option {
+	return func(c *Client) error {
+		if sessionID == "" {
+			return errors.New("blank session ID")
+		}
+
+		c.sessionID = sessionID
+
+		return nil
+	}
+}
+
+func (c *Client) sendRequest(req *http.Request) (status int, data []byte, err error) {
+	req.Header.Set("Cookie", fmt.Sprintf("beaker.session.id=%s", c.sessionID))
+
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return status, data, fmt.Errorf("error making request: %w", err)
 	}

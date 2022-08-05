@@ -27,7 +27,7 @@ type ListHourEntriesOutput struct {
 }
 
 func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.BaseURL, input.Date)
+	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.baseURL, input.Date)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -105,7 +105,7 @@ type CreateHourEntryOutput struct {
 }
 
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {
@@ -141,7 +141,7 @@ type DeleteHourEntryInput struct {
 }
 
 func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {
@@ -177,7 +177,7 @@ type UpdateHourEntryInput struct {
 type UpdateHourEntryOutput CreateHourEntryOutput
 
 func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {

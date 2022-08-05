@@ -1,7 +1,7 @@
 # Intranet Client for Go
 
-## Running tests
+## Running integration tests
 
 ```bash
-go test ./...
+go test -tags=integration
 ```
