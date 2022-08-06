@@ -3,5 +3,5 @@
 ## Running integration tests
 
 ```bash
-go test -tags=integration
+INTRANET_SESSION_ID=<your session ID> go test -tags=integration
 ```
