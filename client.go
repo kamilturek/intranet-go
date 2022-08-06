@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	BaseURL         string = "https://intranet.stxnext.pl/api"
-	DateFormat      string = "2006-01-02"
+	baseURL         string = "https://intranet.stxnext.pl/api"
 	SessionIDEnvVar string = "INTRANET_SESSION_ID"
 )
 
@@ -21,9 +20,9 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func NewClient(opts ...option) *Client {
-	return &Client{
-		baseURL:   BaseURL,
+func NewClient(opts ...option) (*Client, error) {
+	c := &Client{
+		baseURL:   baseURL,
 		sessionID: os.Getenv(SessionIDEnvVar),
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
@@ -32,6 +31,14 @@ func NewClient(opts ...option) *Client {
 			},
 		},
 	}
+
+	for _, opt := range opts {
+		if err := opt(c); err != nil {
+			return nil, err
+		}
+	}
+
+	return c, nil
 }
 
 type option func(c *Client) error

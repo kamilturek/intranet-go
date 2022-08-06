@@ -20,6 +20,9 @@ type Entry struct {
 		ID         int
 		Name       string
 	}
+	Ticket struct {
+		ID string
+	}
 }
 
 type ListHourEntriesOutput struct {
