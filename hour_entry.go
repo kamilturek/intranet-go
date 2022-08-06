@@ -5,31 +5,47 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
-type ListHourEntriesInput struct {
-	Date string
-}
-
 type Entry struct {
-	ID          int
+	ID          string
+	Date        string
 	Description string
-	Time        float64
 	Project     struct {
-		ClientName string
-		ID         int
-		Name       string
+		ID     int
+		Name   string
+		Client struct {
+			Name string
+		}
 	}
+	Time   float64
 	Ticket struct {
 		ID string
 	}
 }
 
-type ListHourEntriesOutput struct {
-	Entries []Entry `json:"entries"`
+type ListHourEntriesInput struct {
+	Date string
 }
 
-func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
+type listEntriesResponse struct {
+	Entries []struct {
+		ID          int
+		Description string
+		Time        float64
+		Project     struct {
+			ClientName string
+			ID         int
+			Name       string
+		}
+		Ticket struct {
+			ID string
+		}
+	}
+}
+
+func (c *Client) ListHourEntries(input *ListHourEntriesInput) ([]*Entry, error) {
 	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.baseURL, input.Date)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -46,36 +62,59 @@ func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesO
 		return nil, fmt.Errorf("unexpected response status: %d", status)
 	}
 
-	var output ListHourEntriesOutput
+	var output listEntriesResponse
 
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
 	}
 
-	return &output, nil
+	entries := []*Entry{}
+
+	for _, rawEntry := range output.Entries {
+		entry := &Entry{
+			ID:          strconv.Itoa(rawEntry.ID),
+			Date:        input.Date,
+			Description: rawEntry.Description,
+			Project: struct {
+				ID     int
+				Name   string
+				Client struct{ Name string }
+			}{
+				ID:   rawEntry.Project.ID,
+				Name: rawEntry.Project.Name,
+				Client: struct{ Name string }{
+					Name: rawEntry.Project.ClientName,
+				},
+			},
+			Time: rawEntry.Time,
+			Ticket: struct{ ID string }{
+				ID: rawEntry.Ticket.ID,
+			},
+		}
+
+		entries = append(entries, entry)
+	}
+
+	return entries, nil
 }
 
 type GetHourEntryInput struct {
-	ID   int
+	ID   string
 	Date string
 }
 
-type GetHourEntryOutput Entry
-
-func (c *Client) GetHourEntry(input *GetHourEntryInput) (*GetHourEntryOutput, error) {
-	output, err := c.ListHourEntries(&ListHourEntriesInput{
+func (c *Client) GetHourEntry(input *GetHourEntryInput) (*Entry, error) {
+	entries, err := c.ListHourEntries(&ListHourEntriesInput{
 		Date: input.Date,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	for _, e := range output.Entries {
+	for _, e := range entries {
 		if e.ID == input.ID {
-			entry := GetHourEntryOutput(e)
-
-			return &entry, nil
+			return e, nil
 		}
 	}
 
@@ -90,7 +129,7 @@ type CreateHourEntryInput struct {
 	Time        float64 `json:"time"`
 }
 
-type CreateHourEntryOutput struct {
+type createHourEntryResponse struct {
 	Added       string
 	Date        string
 	Description string `json:"desc"`
@@ -107,7 +146,7 @@ type CreateHourEntryOutput struct {
 	UserID   string
 }
 
-func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
+func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*Entry, error) {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
@@ -129,14 +168,17 @@ func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryO
 		return nil, fmt.Errorf("unexpected response status: %d", status)
 	}
 
-	var output CreateHourEntryOutput
+	var output createHourEntryResponse
 
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
 	}
 
-	return &output, nil
+	return c.GetHourEntry(&GetHourEntryInput{
+		ID:   output.ID,
+		Date: output.Date,
+	})
 }
 
 type DeleteHourEntryInput struct {
@@ -177,9 +219,9 @@ type UpdateHourEntryInput struct {
 	Time        float64 `json:"time"`
 }
 
-type UpdateHourEntryOutput CreateHourEntryOutput
+type updateHourEntryResponse createHourEntryResponse
 
-func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
+func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*Entry, error) {
 	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
@@ -201,12 +243,15 @@ func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryO
 		return nil, fmt.Errorf("unexpected response status: %d", status)
 	}
 
-	var output UpdateHourEntryOutput
+	var output updateHourEntryResponse
 
 	err = json.Unmarshal(data, &output)
 	if err != nil {
 		return nil, err
 	}
 
-	return &output, nil
+	return c.GetHourEntry(&GetHourEntryInput{
+		ID:   output.ID,
+		Date: output.Date,
+	})
 }

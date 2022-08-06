@@ -4,10 +4,11 @@ package intranet_test
 
 import (
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/kamilturek/intranet-go"
 )
 
@@ -40,74 +41,102 @@ func TestHourEntry(t *testing.T) {
 		t.Fatalf("%s environment variable must be set", intranet.SessionIDEnvVar)
 	}
 
+	ignoreFields := cmpopts.IgnoreFields(intranet.Entry{}, "ID", "Project.Name", "Project.Client.Name")
+
 	client, err := intranet.NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create
-	createInput := &intranet.CreateHourEntryInput{
+	want := &intranet.Entry{
+		ID:          "",
 		Date:        intranet.Date(now),
 		Description: "Test",
-		ProjectID:   422,
-		TicketID:    "TEST",
-		Time:        1.5,
+		Project: struct {
+			ID     int
+			Name   string
+			Client struct{ Name string }
+		}{
+			ID: 422,
+		},
+		Time: 1.5,
+		Ticket: struct{ ID string }{
+			ID: "TEST",
+		},
 	}
-	createOutput, err := client.CreateHourEntry(createInput)
+	got, err := client.CreateHourEntry(
+		&intranet.CreateHourEntryInput{
+			Date:        intranet.Date(now),
+			Description: "Test",
+			ProjectID:   422,
+			TicketID:    "TEST",
+			Time:        1.5,
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Update
-	updateInput := &intranet.UpdateHourEntryInput{
-		Date:        intranet.Date(now),
-		Description: "Test Updated",
-		ID:          createOutput.ID,
-		ProjectID:   422,
-		TicketID:    "TEST-UPDATED",
-		Time:        2.5,
-	}
-	updateOutput, err := client.UpdateHourEntry(updateInput)
-	if err != nil {
-		t.Fatal(err)
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
 
 	// Get
-	id, err := strconv.Atoi(updateOutput.ID)
+	got, err = client.GetHourEntry(
+		&intranet.GetHourEntryInput{
+			ID:   got.ID,
+			Date: intranet.Date(now),
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	getInput := &intranet.GetHourEntryInput{
-		ID:   id,
-		Date: intranet.Date(now),
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
-	getOutput, err := client.GetHourEntry(getInput)
+
+	// Update
+	want = &intranet.Entry{
+		ID:          "",
+		Date:        intranet.Date(now),
+		Description: "Test Updated",
+		Project: struct {
+			ID     int
+			Name   string
+			Client struct{ Name string }
+		}{
+			ID: 422,
+		},
+		Time: 2.5,
+		Ticket: struct{ ID string }{
+			ID: "TEST-UPDATED",
+		},
+	}
+	got, err = client.UpdateHourEntry(
+		&intranet.UpdateHourEntryInput{
+			Date:        intranet.Date(now),
+			Description: "Test Updated",
+			ID:          got.ID,
+			ProjectID:   422,
+			TicketID:    "TEST-UPDATED",
+			Time:        2.5,
+		})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if strconv.Itoa(getOutput.ID) != createOutput.ID {
-		t.Fatalf("want %s, got %d", createOutput.ID, getOutput.ID)
-	}
-
-	if getOutput.Description != "Test Updated" {
-		t.Fatalf("want %s, got %s", "Test Updated", getOutput.Description)
-	}
-
-	if getOutput.Ticket.ID != "TEST-UPDATED" {
-		t.Fatalf("want %s, got %s", "TEST-UPDATED", getOutput.Ticket.ID)
-	}
-
-	if getOutput.Time != 2.5 {
-		t.Fatalf("want %f, got %f", 2.5, getOutput.Time)
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
 
 	// Delete
-	deleteInput := &intranet.DeleteHourEntryInput{
-		ID: createOutput.ID,
-	}
-	err = client.DeleteHourEntry(deleteInput)
+	err = client.DeleteHourEntry(
+		&intranet.DeleteHourEntryInput{
+			ID: got.ID,
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
