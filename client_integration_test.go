@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/kamilturek/intranet-go"
 )
 
@@ -46,7 +47,15 @@ func TestHourEntry(t *testing.T) {
 	}
 
 	// Create
-	createdEntry, err := client.CreateHourEntry(
+	want := &intranet.Entry{
+		ID:          "",
+		Description: "Test",
+		Time:        1.5,
+		Ticket: struct{ ID string }{
+			ID: "TEST",
+		},
+	}
+	got, err := client.CreateHourEntry(
 		&intranet.CreateHourEntryInput{
 			Date:        intranet.Date(now),
 			Description: "Test",
@@ -59,10 +68,14 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
+		t.Fatal(diff)
+	}
+
 	// Get
-	gotEntry, err := client.GetHourEntry(
+	got, err = client.GetHourEntry(
 		&intranet.GetHourEntryInput{
-			ID:   createdEntry.ID,
+			ID:   got.ID,
 			Date: intranet.Date(now),
 		},
 	)
@@ -70,16 +83,24 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !cmp.Equal(createdEntry, gotEntry) {
-		t.Fatal(cmp.Diff(createdEntry, gotEntry))
+	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
+		t.Fatal(diff)
 	}
 
 	// Update
-	updatedEntry, err := client.UpdateHourEntry(
+	want = &intranet.Entry{
+		ID:          "",
+		Description: "Test Updated",
+		Time:        2.5,
+		Ticket: struct{ ID string }{
+			ID: "TEST-UPDATED",
+		},
+	}
+	got, err = client.UpdateHourEntry(
 		&intranet.UpdateHourEntryInput{
 			Date:        intranet.Date(now),
 			Description: "Test Updated",
-			ID:          gotEntry.ID,
+			ID:          got.ID,
 			ProjectID:   422,
 			TicketID:    "TEST-UPDATED",
 			Time:        2.5,
@@ -88,25 +109,14 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Get again
-	gotUpdatedEntry, err := client.GetHourEntry(
-		&intranet.GetHourEntryInput{
-			ID:   updatedEntry.ID,
-			Date: intranet.Date(now),
-		},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !cmp.Equal(updatedEntry, gotUpdatedEntry) {
-		t.Fatal(cmp.Diff(updatedEntry, gotUpdatedEntry))
+	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
+		t.Fatal(diff)
 	}
 
 	// Delete
 	err = client.DeleteHourEntry(
 		&intranet.DeleteHourEntryInput{
-			ID: gotEntry.ID,
+			ID: got.ID,
 		},
 	)
 	if err != nil {
