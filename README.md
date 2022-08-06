@@ -1,7 +1,7 @@
 # Intranet Client for Go
 
-## Running tests
+## Running integration tests
 
 ```bash
-go test ./...
+INTRANET_SESSION_ID=<your session ID> go test -tags=integration
 ```

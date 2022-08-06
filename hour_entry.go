@@ -20,6 +20,9 @@ type Entry struct {
 		ID         int
 		Name       string
 	}
+	Ticket struct {
+		ID string
+	}
 }
 
 type ListHourEntriesOutput struct {
@@ -27,9 +30,9 @@ type ListHourEntriesOutput struct {
 }
 
 func (c *Client) ListHourEntries(input *ListHourEntriesInput) (*ListHourEntriesOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.BaseURL, input.Date)
+	url := fmt.Sprintf("%s/intranet4/hours?date=%s", c.baseURL, input.Date)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,14 +108,14 @@ type CreateHourEntryOutput struct {
 }
 
 func (c *Client) CreateHourEntry(input *CreateHourEntryInput) (*CreateHourEntryOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(postData))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(postData))
 	if err != nil {
 		return nil, err
 	}
@@ -141,14 +144,14 @@ type DeleteHourEntryInput struct {
 }
 
 func (c *Client) DeleteHourEntry(input *DeleteHourEntryInput) error {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(postData))
+	req, err := http.NewRequest(http.MethodDelete, url, bytes.NewBuffer(postData))
 	if err != nil {
 		return err
 	}
@@ -177,14 +180,14 @@ type UpdateHourEntryInput struct {
 type UpdateHourEntryOutput CreateHourEntryOutput
 
 func (c *Client) UpdateHourEntry(input *UpdateHourEntryInput) (*UpdateHourEntryOutput, error) {
-	url := fmt.Sprintf("%s/intranet4/user_times", c.BaseURL)
+	url := fmt.Sprintf("%s/intranet4/user_times", c.baseURL)
 
 	postData, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(postData))
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(postData))
 	if err != nil {
 		return nil, err
 	}

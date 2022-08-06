@@ -1,41 +1,64 @@
 package intranet
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
 const (
-	BaseURL         string = "https://intranet.stxnext.pl/api"
-	DateFormat      string = "2006-01-02"
+	baseURL         string = "https://intranet.stxnext.pl/api"
 	SessionIDEnvVar string = "INTRANET_SESSION_ID"
 )
 
 type Client struct {
-	BaseURL    string
-	SessionID  string
-	HTTPClient *http.Client
+	baseURL    string
+	sessionID  string
+	httpClient *http.Client
 }
 
-func NewClient(sessionID string) *Client {
-	return &Client{
-		BaseURL:   BaseURL,
-		SessionID: sessionID,
-		HTTPClient: &http.Client{
+func NewClient(opts ...option) (*Client, error) {
+	c := &Client{
+		baseURL:   baseURL,
+		sessionID: os.Getenv(SessionIDEnvVar),
+		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
 		},
 	}
+
+	for _, opt := range opts {
+		if err := opt(c); err != nil {
+			return nil, err
+		}
+	}
+
+	return c, nil
+}
+
+type option func(c *Client) error
+
+func WithSessionID(sessionID string) option {
+	return func(c *Client) error {
+		if sessionID == "" {
+			return errors.New("blank session ID")
+		}
+
+		c.sessionID = sessionID
+
+		return nil
+	}
 }
 
 func (c *Client) sendRequest(req *http.Request) (status int, data []byte, err error) {
-	req.Header.Set("Cookie", fmt.Sprintf("beaker.session.id=%s", c.SessionID))
+	req.Header.Set("Cookie", fmt.Sprintf("beaker.session.id=%s", c.sessionID))
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return status, data, fmt.Errorf("error making request: %w", err)
 	}
