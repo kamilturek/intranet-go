@@ -4,10 +4,10 @@ package intranet_test
 
 import (
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/kamilturek/intranet-go"
 )
 
@@ -46,68 +46,69 @@ func TestHourEntry(t *testing.T) {
 	}
 
 	// Create
-	createInput := &intranet.CreateHourEntryInput{
-		Date:        intranet.Date(now),
-		Description: "Test",
-		ProjectID:   422,
-		TicketID:    "TEST",
-		Time:        1.5,
-	}
-	createOutput, err := client.CreateHourEntry(createInput)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Update
-	updateInput := &intranet.UpdateHourEntryInput{
-		Date:        intranet.Date(now),
-		Description: "Test Updated",
-		ID:          createOutput.ID,
-		ProjectID:   422,
-		TicketID:    "TEST-UPDATED",
-		Time:        2.5,
-	}
-	updateOutput, err := client.UpdateHourEntry(updateInput)
+	createdEntry, err := client.CreateHourEntry(
+		&intranet.CreateHourEntryInput{
+			Date:        intranet.Date(now),
+			Description: "Test",
+			ProjectID:   422,
+			TicketID:    "TEST",
+			Time:        1.5,
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Get
-	id, err := strconv.Atoi(updateOutput.ID)
+	gotEntry, err := client.GetHourEntry(
+		&intranet.GetHourEntryInput{
+			ID:   createdEntry.ID,
+			Date: intranet.Date(now),
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	getInput := &intranet.GetHourEntryInput{
-		ID:   id,
-		Date: intranet.Date(now),
+	if !cmp.Equal(createdEntry, gotEntry) {
+		t.Fatal(cmp.Diff(createdEntry, gotEntry))
 	}
-	getOutput, err := client.GetHourEntry(getInput)
+
+	// Update
+	updatedEntry, err := client.UpdateHourEntry(
+		&intranet.UpdateHourEntryInput{
+			Date:        intranet.Date(now),
+			Description: "Test Updated",
+			ID:          gotEntry.ID,
+			ProjectID:   422,
+			TicketID:    "TEST-UPDATED",
+			Time:        2.5,
+		})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if strconv.Itoa(getOutput.ID) != createOutput.ID {
-		t.Fatalf("want %s, got %d", createOutput.ID, getOutput.ID)
+	// Get again
+	gotUpdatedEntry, err := client.GetHourEntry(
+		&intranet.GetHourEntryInput{
+			ID:   updatedEntry.ID,
+			Date: intranet.Date(now),
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if getOutput.Description != "Test Updated" {
-		t.Fatalf("want %s, got %s", "Test Updated", getOutput.Description)
-	}
-
-	if getOutput.Ticket.ID != "TEST-UPDATED" {
-		t.Fatalf("want %s, got %s", "TEST-UPDATED", getOutput.Ticket.ID)
-	}
-
-	if getOutput.Time != 2.5 {
-		t.Fatalf("want %f, got %f", 2.5, getOutput.Time)
+	if !cmp.Equal(updatedEntry, gotUpdatedEntry) {
+		t.Fatal(cmp.Diff(updatedEntry, gotUpdatedEntry))
 	}
 
 	// Delete
-	deleteInput := &intranet.DeleteHourEntryInput{
-		ID: createOutput.ID,
-	}
-	err = client.DeleteHourEntry(deleteInput)
+	err = client.DeleteHourEntry(
+		&intranet.DeleteHourEntryInput{
+			ID: gotEntry.ID,
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
