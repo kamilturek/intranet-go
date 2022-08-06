@@ -10,9 +10,17 @@ import (
 
 type Entry struct {
 	ID          string
+	Date        string
 	Description string
-	Time        float64
-	Ticket      struct {
+	Project     struct {
+		ID     int
+		Name   string
+		Client struct {
+			Name string
+		}
+	}
+	Time   float64
+	Ticket struct {
 		ID string
 	}
 }
@@ -66,8 +74,20 @@ func (c *Client) ListHourEntries(input *ListHourEntriesInput) ([]*Entry, error) 
 	for _, rawEntry := range output.Entries {
 		entry := &Entry{
 			ID:          strconv.Itoa(rawEntry.ID),
+			Date:        input.Date,
 			Description: rawEntry.Description,
-			Time:        rawEntry.Time,
+			Project: struct {
+				ID     int
+				Name   string
+				Client struct{ Name string }
+			}{
+				ID:   rawEntry.Project.ID,
+				Name: rawEntry.Project.Name,
+				Client: struct{ Name string }{
+					Name: rawEntry.Project.ClientName,
+				},
+			},
+			Time: rawEntry.Time,
 			Ticket: struct{ ID string }{
 				ID: rawEntry.Ticket.ID,
 			},

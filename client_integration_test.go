@@ -41,6 +41,8 @@ func TestHourEntry(t *testing.T) {
 		t.Fatalf("%s environment variable must be set", intranet.SessionIDEnvVar)
 	}
 
+	ignoreFields := cmpopts.IgnoreFields(intranet.Entry{}, "ID", "Project.Name", "Project.Client.Name")
+
 	client, err := intranet.NewClient()
 	if err != nil {
 		t.Fatal(err)
@@ -49,8 +51,16 @@ func TestHourEntry(t *testing.T) {
 	// Create
 	want := &intranet.Entry{
 		ID:          "",
+		Date:        intranet.Date(now),
 		Description: "Test",
-		Time:        1.5,
+		Project: struct {
+			ID     int
+			Name   string
+			Client struct{ Name string }
+		}{
+			ID: 422,
+		},
+		Time: 1.5,
 		Ticket: struct{ ID string }{
 			ID: "TEST",
 		},
@@ -68,8 +78,8 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
-		t.Fatal(diff)
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
 
 	// Get
@@ -83,15 +93,23 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
-		t.Fatal(diff)
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
 
 	// Update
 	want = &intranet.Entry{
 		ID:          "",
+		Date:        intranet.Date(now),
 		Description: "Test Updated",
-		Time:        2.5,
+		Project: struct {
+			ID     int
+			Name   string
+			Client struct{ Name string }
+		}{
+			ID: 422,
+		},
+		Time: 2.5,
 		Ticket: struct{ ID string }{
 			ID: "TEST-UPDATED",
 		},
@@ -109,8 +127,8 @@ func TestHourEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(intranet.Entry{}, "ID")); diff != "" {
-		t.Fatal(diff)
+	if diff := cmp.Diff(want, got, ignoreFields); diff != "" {
+		t.Error(diff)
 	}
 
 	// Delete
